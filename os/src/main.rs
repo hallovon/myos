@@ -10,14 +10,25 @@ mod sbi;
 /// 处理屏幕信息输出
 #[macro_use]
 mod console;
+/// 批处理系统加载程序到主存中
+mod batch;
+/// 用于同步全局变量
+mod sync;
+/// 处理系统调用
+mod syscall;
+/// 切换用户态/内核态
+mod trap;
 
 global_asm!(include_str!("entry.asm"));
+global_asm!(include_str!("link_app.S"));
 
 #[no_mangle]
 pub fn rust_main() -> ! {
     clear_bss();
-    println!("hello world!");
-    panic!("Shutdown machine!");
+    println!("[kernel] Hello, world!");
+    trap::init();
+    batch::init();
+    batch::run_next_app();
 }
 
 /// 将操作系统的bss段清零
