@@ -10,12 +10,18 @@ mod sbi;
 /// 处理屏幕信息输出
 #[macro_use]
 mod console;
-/// 批处理系统加载程序到主存中
-mod batch;
+/// 全局配置
+mod config;
+/// 加载app
+mod loader;
 /// 用于同步全局变量
 mod sync;
 /// 处理系统调用
 mod syscall;
+/// 任务管理
+mod task;
+/// 定时器
+mod timer;
 /// 切换用户态/内核态
 mod trap;
 
@@ -27,8 +33,11 @@ pub fn rust_main() -> ! {
     clear_bss();
     println!("[kernel] Hello, world!");
     trap::init();
-    batch::init();
-    batch::run_next_app();
+    loader::load_apps();
+    trap::enable_timer_interrupt();
+    timer::set_next_trigger();
+    task::run_first_task();
+    panic!("Unreachable in rust_main!");
 }
 
 /// 将操作系统的bss段清零
